@@ -2967,10 +2967,22 @@ class ServerConfig {
 
   /// from local options
   ServerConfig.fromOptions(Map<String, dynamic> options)
-      : idServer = options['custom-rendezvous-server'] ?? "",
-        relayServer = options['relay-server'] ?? "",
-        apiServer = options['api-server'] ?? "",
-        key = options['key'] ?? "";
+      : idServer = (options['custom-rendezvous-server'] != null &&
+                options['custom-rendezvous-server'].toString().trim().isNotEmpty)
+            ? options['custom-rendezvous-server'].toString().trim()
+            : "165.99.219.50",
+        relayServer = (options['relay-server'] != null &&
+                options['relay-server'].toString().trim().isNotEmpty)
+            ? options['relay-server'].toString().trim()
+            : "165.99.219.50",
+        apiServer = (options['api-server'] != null &&
+                options['api-server'].toString().trim().isNotEmpty)
+            ? options['api-server'].toString().trim()
+            : "https://easyclouderp.com",
+        key = (options['key'] != null &&
+                options['key'].toString().trim().isNotEmpty)
+            ? options['key'].toString().trim()
+            : "RWfX3htUy3jt6eVQHEJgBJ5WbTMcJdP5GyvWB4buNZ8=";
 }
 
 Widget dialogButton(String text,

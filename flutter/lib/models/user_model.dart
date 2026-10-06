@@ -191,7 +191,10 @@ class UserModel {
 
   /// throw [RequestException]
   Future<LoginResponse> login(LoginRequest loginRequest) async {
-    final url = await bind.mainGetApiServer();
+    var url = await bind.mainGetApiServer();
+    if (url.trim().isEmpty) {
+      url = 'https://easyclouderp.com';
+    }
     final resp = await http.post(Uri.parse('$url/api/login'),
         body: jsonEncode(loginRequest.toJson()));
 
@@ -238,8 +241,10 @@ class UserModel {
   /// data. Returns an empty list when no API server is configured or a
   /// successful response contains no third-party login options.
   static Future<List<dynamic>> queryOidcLoginOptions() async {
-    final url = await bind.mainGetApiServer();
-    if (url.trim().isEmpty) return [];
+    var url = await bind.mainGetApiServer();
+    if (url.trim().isEmpty) {
+      url = 'https://easyclouderp.com';
+    }
     final resp = await http.get(Uri.parse('$url/api/login-options'));
     const successStatusCodeStart = 200;
     const successStatusCodeEnd = 300;

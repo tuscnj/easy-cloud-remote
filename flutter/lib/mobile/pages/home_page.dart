@@ -42,7 +42,35 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    _ensureServerConfig();
     initPages();
+  }
+
+  void _ensureServerConfig() async {
+    try {
+      final idServer = await bind.mainGetOption(key: 'custom-rendezvous-server');
+      if (idServer.isEmpty || idServer.contains('rustdesk.com')) {
+        await bind.mainSetOption(
+            key: 'custom-rendezvous-server', value: '165.99.219.50');
+      }
+      final relayServer = await bind.mainGetOption(key: 'relay-server');
+      if (relayServer.isEmpty || relayServer.contains('rustdesk.com')) {
+        await bind.mainSetOption(
+            key: 'relay-server', value: '165.99.219.50');
+      }
+      final key = await bind.mainGetOption(key: 'key');
+      if (key.isEmpty) {
+        await bind.mainSetOption(
+            key: 'key', value: 'RWfX3htUy3jt6eVQHEJgBJ5WbTMcJdP5GyvWB4buNZ8=');
+      }
+      final apiServer = await bind.mainGetOption(key: 'api-server');
+      if (apiServer.isEmpty || apiServer.contains('rustdesk.com')) {
+        await bind.mainSetOption(
+            key: 'api-server', value: 'https://easyclouderp.com');
+      }
+    } catch (e) {
+      debugPrint("Auto server config error: $e");
+    }
   }
 
   void initPages() {

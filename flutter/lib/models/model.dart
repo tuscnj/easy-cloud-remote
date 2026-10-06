@@ -898,6 +898,15 @@ class FfiModel with ChangeNotifier {
       return;
     }
 
+    // If the remote session is already connected and streaming frames,
+    // suppress spurious connection errors from background racing punch attempts
+    if (parent.target?.ffiModel.waitForFirstImage.value == false &&
+        (title == 'Connection Error' || type == 'error') &&
+        (text.contains('lookup address information') || text.contains('No address associated'))) {
+      debugPrint('Suppressing spurious connection error while connected: $text');
+      return;
+    }
+
     // Disable relative mouse mode on any error-type message to ensure cursor is released.
     // This includes connection errors, session-ending messages, elevation errors, etc.
     // Safety: releasing pointer lock on errors prevents the user from being stuck.

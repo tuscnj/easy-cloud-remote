@@ -902,8 +902,12 @@ Future<bool?> _openLoginDialog() async {
               ],
             );
           }
+          final googleOps = loginOptions
+              .where((e) => e['name'].toString().toLowerCase() == 'google')
+              .map((e) => ConfigOP(op: e['name'], icon: e['icon']))
+              .toList();
           return Offstage(
-            offstage: loginOptions.isEmpty,
+            offstage: googleOps.isEmpty,
             child: Column(
               children: [
                 const SizedBox(
@@ -918,10 +922,7 @@ Future<bool?> _openLoginDialog() async {
                   height: 8.0,
                 ),
                 LoginWidgetOP(
-                  ops: loginOptions
-                      .where((e) => e['name'] != 'github' && e['name'] != 'gitlab')
-                      .map((e) => ConfigOP(op: e['name'], icon: e['icon']))
-                      .toList(),
+                  ops: googleOps,
                   curOP: curOP,
                   startAuth: oidcAuth.start,
                   cancelAuth: oidcAuth.cancelCurrent,
