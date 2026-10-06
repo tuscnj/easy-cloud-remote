@@ -131,7 +131,7 @@ fn validate_install_app_name(app_name: &str) -> ResultType<()> {
     if app_name.is_empty()
         || !app_name
             .chars()
-            .all(|character| character.is_ascii_alphanumeric() || character == '-')
+            .all(|character| character.is_ascii_alphanumeric() || character == '-' || character == '_' || character == ' ')
     {
         bail!("Application name must match [a-zA-Z0-9-]+");
     }
