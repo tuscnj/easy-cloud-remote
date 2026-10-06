@@ -691,6 +691,21 @@ class LoginWidgetUserPass extends StatelessWidget {
                     )),
               ),
             ])),
+            const SizedBox(height: 12.0),
+            GestureDetector(
+              onTap: () => launchUrl(Uri.parse('https://easyclouderp.com/register'), mode: LaunchMode.externalApplication),
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: Text(
+                  "Don't have an account? Register on Easy Cloud ERP",
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: 12,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+            ),
           ],
         ));
   }
@@ -904,6 +919,7 @@ Future<bool?> _openLoginDialog() async {
                 ),
                 LoginWidgetOP(
                   ops: loginOptions
+                      .where((e) => e['name'] != 'github' && e['name'] != 'gitlab')
                       .map((e) => ConfigOP(op: e['name'], icon: e['icon']))
                       .toList(),
                   curOP: curOP,
