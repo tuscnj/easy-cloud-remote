@@ -140,33 +140,54 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                 Expanded(child: Container())
               ],
             ),
-            if (isOutgoingOnly)
-              Positioned(
-                bottom: 6,
-                left: 12,
-                child: Align(
-                  alignment: Alignment.centerLeft,
+            Positioned(
+              bottom: 8,
+              left: 12,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Tooltip(
+                  message: translate('Settings'),
                   child: InkWell(
-                    child: Obx(
-                      () => Icon(
-                        Icons.settings,
-                        color: _editHover.value
-                            ? textColor
-                            : Colors.grey.withOpacity(0.5),
-                        size: 22,
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                      child: Obx(
+                        () => Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.settings,
+                              color: _editHover.value
+                                  ? textColor
+                                  : Colors.grey.withOpacity(0.7),
+                              size: 20,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              translate('Settings'),
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                color: _editHover.value
+                                    ? textColor
+                                    : Colors.grey.withOpacity(0.8),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    onTap: () => {
-                      if (DesktopSettingPage.tabKeys.isNotEmpty)
-                        {
-                          DesktopSettingPage.switch2page(
-                              DesktopSettingPage.tabKeys[0])
-                        }
+                    onTap: () {
+                      if (DesktopSettingPage.tabKeys.isNotEmpty) {
+                        DesktopSettingPage.switch2page(
+                            DesktopSettingPage.tabKeys[0]);
+                      }
                     },
                     onHover: (value) => _editHover.value = value,
                   ),
                 ),
-              )
+              ),
+            )
           ],
         ),
       ),
