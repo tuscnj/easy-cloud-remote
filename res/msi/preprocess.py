@@ -462,6 +462,10 @@ def prepare_resources():
 
 def init_global_vars(dist_dir, app_name, args):
     dist_app = dist_dir.joinpath(app_name + ".exe")
+    if not dist_app.exists():
+        fallback = dist_dir.joinpath("rustdesk.exe")
+        if fallback.exists():
+            dist_app = fallback
 
     def read_process_output(args):
         process = subprocess.Popen(

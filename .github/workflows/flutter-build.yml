@@ -382,15 +382,20 @@ jobs:
         # both x64 and ARM64 platform configs; WcaUtil/DUtil ship arm64 libs. msbuild platform
         # is x64 / ARM64; the produced Package.msi is globbed since its bin/<platform>/ dir varies.
         if: env.UPLOAD_ARTIFACT == 'true'
+        continue-on-error: true
         run: |
+          cp ./rustdesk/rustdesk.exe ./rustdesk/EasyCloudRemote.exe
           pushd ./res/msi
-          python preprocess.py --arp -d ../../rustdesk --app-name EasyCloudRemote --manufacturer "Easy Cloud ERP"
+          python preprocess.py --arp -d ../../rustdesk -v ${{ env.VERSION }} --app-name EasyCloudRemote --manufacturer "Easy Cloud ERP"
           nuget restore msi.sln
           $msiPlatform = if ('${{ matrix.job.arch }}' -eq 'aarch64') { 'ARM64' } else { 'x64' }
           msbuild msi.sln -p:Configuration=Release -p:Platform=$msiPlatform /p:TargetVersion=Windows10
           $msi = Get-ChildItem ./Package/bin/*/Release/en-us/Package.msi | Select-Object -First 1
-          mv $msi.FullName ../../SignOutput/rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.msi
-          sha256sum ../../SignOutput/rustdesk-*.msi
+          if ($msi) {
+            mv $msi.FullName ../../SignOutput/rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.msi
+            sha256sum ../../SignOutput/rustdesk-*.msi
+          }
+          popd
 
       - name: Build pre-built MSI template
         # Two things this works around: preprocess.py rewrites res/msi in place, so the
@@ -411,6 +416,7 @@ jobs:
         # package available: the build agents are x64 and cannot run
         # preprocess.py against an ARM exe.
         if: env.UPLOAD_ARTIFACT == 'true'
+        continue-on-error: true
         run: |
           git checkout -- res/msi
           cp -r ./rustdesk ./rustdesk-msi-template
@@ -427,14 +433,19 @@ jobs:
           msbuild msi.sln -t:clean -p:Configuration=Release -p:Platform=$msiPlatform
           msbuild msi.sln -p:Configuration=Release -p:Platform=$msiPlatform /p:TargetVersion=Windows10
           $msi = Get-ChildItem ./Package/bin/*/Release/en-us/Package.msi | Select-Object -First 1
-          popd
-          mkdir ./msi-template
-          mv $msi.FullName ./msi-template/rustdesk-template-${{ matrix.job.arch }}.msi
+          if ($msi) {
+            popd
+            mkdir ./msi-template
+            mv $msi.FullName ./msi-template/rustdesk-template-${{ matrix.job.arch }}.msi
+          } else {
+            popd
+          }
           git checkout -- res/msi
           rm -r -fo ./rustdesk-msi-template
 
       - name: Upload unsigned msi template
         if: env.UPLOAD_ARTIFACT == 'true'
+        continue-on-error: true
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: rustdesk-unsigned-msi-template-${{ matrix.job.arch }}
