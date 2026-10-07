@@ -104,7 +104,11 @@ Future<void> main(List<String> args) async {
     desktopType = DesktopType.cm;
     await windowManager.ensureInitialized();
     runConnectionManagerScreen();
-  } else if (args.contains('--install')) {
+  } else if (args.contains('--install') ||
+      (isDesktop &&
+          !bind.mainIsInstalled() &&
+          (Platform.resolvedExecutable.toLowerCase().contains('setup') ||
+              Platform.resolvedExecutable.toLowerCase().contains('installer')))) {
     runInstallPage();
   } else {
     desktopType = DesktopType.main;

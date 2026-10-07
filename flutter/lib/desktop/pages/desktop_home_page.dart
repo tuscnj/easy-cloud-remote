@@ -130,14 +130,16 @@ class _DesktopHomePageState extends State<DesktopHomePage>
           children: [
             Column(
               children: [
-                SingleChildScrollView(
-                  controller: _leftPaneScrollController,
-                  child: Column(
-                    key: _childKey,
-                    children: children,
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: _leftPaneScrollController,
+                    padding: const EdgeInsets.only(bottom: 42.0),
+                    child: Column(
+                      key: _childKey,
+                      children: children,
+                    ),
                   ),
                 ),
-                Expanded(child: Container())
               ],
             ),
             Positioned(
