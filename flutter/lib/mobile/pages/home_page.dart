@@ -58,11 +58,6 @@ class HomePageState extends State<HomePage> {
         await bind.mainSetOption(
             key: 'relay-server', value: '165.99.219.50');
       }
-      final key = await bind.mainGetOption(key: 'key');
-      if (key.isEmpty) {
-        await bind.mainSetOption(
-            key: 'key', value: 'RWfX3htUy3jt6eVQHEJgBJ5WbTMcJdP5GyvWB4buNZ8=');
-      }
       final apiServer = await bind.mainGetOption(key: 'api-server');
       if (apiServer.isEmpty || apiServer.contains('rustdesk.com')) {
         await bind.mainSetOption(
