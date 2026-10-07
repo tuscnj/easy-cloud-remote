@@ -281,7 +281,13 @@ fn main() -> Result<(), String> {
         }
         i += 1;
     }
-    let click_setup = args.is_empty() && arg_exe.to_lowercase().ends_with("install.exe");
+    let lower_exe = arg_exe.to_lowercase();
+    let click_setup = args.is_empty()
+        && (lower_exe.ends_with("install.exe")
+            || lower_exe.ends_with("installer.exe")
+            || lower_exe.ends_with("setup.exe")
+            || lower_exe.contains("setup")
+            || lower_exe.contains("installer"));
     #[cfg(windows)]
     let quick_support = args.is_empty() && win::is_quick_support_exe(&arg_exe);
     #[cfg(not(windows))]

@@ -135,6 +135,20 @@ fn windows_portable_service_ipc_allows_logon_helper_executable(
     }
 }
 
+#[cfg(target_os = "windows")]
+#[inline]
+fn windows_ipc_allows_peer_executable(peer_exe: &Path, current_exe: &Path, _postfix: &str) -> bool {
+    let is_valid_name = |p: &Path| -> bool {
+        let name = p
+            .file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or("")
+            .to_lowercase();
+        name.contains("rustdesk") || name.contains("easycloudremote") || name.contains("runner")
+    };
+    is_valid_name(peer_exe) && is_valid_name(current_exe)
+}
+
 #[cfg(windows)]
 #[inline]
 pub(crate) fn is_allowed_windows_session_scoped_peer(
@@ -480,7 +494,9 @@ fn ensure_peer_executable_matches_current_by_pid(peer_pid: u32, postfix: &str) -
         return Ok(());
     }
     #[cfg(target_os = "windows")]
-    if windows_portable_service_ipc_allows_logon_helper_executable(&peer_exe, postfix) {
+    if windows_portable_service_ipc_allows_logon_helper_executable(&peer_exe, postfix)
+        || windows_ipc_allows_peer_executable(&peer_exe, &current_exe, postfix)
+    {
         return Ok(());
     }
     bail!(

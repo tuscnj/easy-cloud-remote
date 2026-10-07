@@ -106,7 +106,6 @@ Future<void> main(List<String> args) async {
     runConnectionManagerScreen();
   } else if (args.contains('--install') ||
       (isDesktop &&
-          !bind.mainIsInstalled() &&
           (Platform.resolvedExecutable.toLowerCase().contains('setup') ||
               Platform.resolvedExecutable.toLowerCase().contains('installer')))) {
     runInstallPage();
@@ -174,6 +173,13 @@ void runMainApp(bool startService) async {
     windowManager.setTitle(getWindowName());
     // Do not use `windowManager.setResizable()` here.
     setResizable(!bind.isIncomingOnly());
+  });
+  Future.delayed(const Duration(milliseconds: 500), () async {
+    if (!kBootArgs.contains('--tray') && !kBootArgs.contains('--silent-install')) {
+      await windowManager.show();
+      await windowManager.focus();
+      await windowManager.setOpacity(1);
+    }
   });
 }
 
@@ -389,16 +395,24 @@ void _runApp(
 }
 
 void runInstallPage() async {
+  desktopType = DesktopType.main;
   await windowManager.ensureInitialized();
+  windowManager.setPreventClose(true);
   await initEnv(kAppTypeMain);
   _runApp('', const InstallPage(), MyTheme.currentThemeMode());
   WindowOptions windowOptions =
-      getHiddenTitleBarWindowOptions(size: Size(800, 600), center: true);
+      getHiddenTitleBarWindowOptions(size: const Size(800, 600), center: true);
   windowManager.waitUntilReadyToShow(windowOptions, () async {
-    windowManager.show();
-    windowManager.focus();
-    windowManager.setOpacity(1);
-    windowManager.setAlignment(Alignment.center); // ensure
+    await windowManager.show();
+    await windowManager.focus();
+    await windowManager.setOpacity(1);
+    await windowManager.setAlignment(Alignment.center);
+    windowManager.setTitle(getWindowName());
+  });
+  Future.delayed(const Duration(milliseconds: 300), () async {
+    await windowManager.show();
+    await windowManager.focus();
+    await windowManager.setOpacity(1);
   });
 }
 
