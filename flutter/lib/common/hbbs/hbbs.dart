@@ -281,8 +281,10 @@ class AbTag {
   AbTag(this.name, this.color);
 
   AbTag.fromJson(Map<String, dynamic> json)
-      : name = json['name'] ?? '',
-        color = json['color'] ?? '';
+      : name = json['name']?.toString() ?? '',
+        color = json['color'] is int
+            ? json['color']
+            : (int.tryParse(json['color']?.toString() ?? '') ?? 0);
 }
 
 class DeviceGroupPayload {

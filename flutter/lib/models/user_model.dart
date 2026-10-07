@@ -245,21 +245,35 @@ class UserModel {
     if (url.trim().isEmpty) {
       url = 'https://easyclouderp.com';
     }
-    final resp = await http.get(Uri.parse('$url/api/login-options'));
+    final http.Response resp;
+    try {
+      resp = await http.get(Uri.parse('$url/api/login-options'));
+    } catch (_) {
+      return [];
+    }
     const successStatusCodeStart = 200;
     const successStatusCodeEnd = 300;
     if (resp.statusCode < successStatusCodeStart ||
         resp.statusCode >= successStatusCodeEnd) {
-      throw RequestException(
-          resp.statusCode, resp.reasonPhrase ?? 'Request failed');
+      return [];
     }
     final List<String> ops = [];
-    for (final item in jsonDecode(resp.body)) {
-      ops.add(item as String);
+    try {
+      final decoded = jsonDecode(resp.body);
+      if (decoded is List) {
+        for (final item in decoded) {
+          if (item != null) ops.add(item.toString());
+        }
+      }
+    } catch (e) {
+      debugPrint('Failed to decode login-options: $e');
+      return [];
     }
     for (final item in ops) {
       if (item.startsWith('common-oidc/')) {
-        return jsonDecode(item.substring('common-oidc/'.length));
+        try {
+          return jsonDecode(item.substring('common-oidc/'.length));
+        } catch (_) {}
       }
     }
     return ops
