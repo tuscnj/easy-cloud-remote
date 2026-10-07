@@ -1585,7 +1585,8 @@ async fn check_id(
                 match msg_in.union {
                     Some(rendezvous_message::Union::RegisterPkResponse(rpr)) => {
                         match rpr.result.enum_value() {
-                            Ok(register_pk_response::Result::OK) => {
+                            Ok(register_pk_response::Result::OK)
+                            | Ok(register_pk_response::Result::NOT_SUPPORT) => {
                                 ok = true;
                             }
                             Ok(register_pk_response::Result::ID_EXISTS) => {
@@ -1593,9 +1594,6 @@ async fn check_id(
                             }
                             Ok(register_pk_response::Result::TOO_FREQUENT) => {
                                 return "Too frequent";
-                            }
-                            Ok(register_pk_response::Result::NOT_SUPPORT) => {
-                                return "server_not_support";
                             }
                             Ok(register_pk_response::Result::SERVER_ERROR) => {
                                 return "Server error";
