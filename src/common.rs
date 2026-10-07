@@ -1018,7 +1018,8 @@ pub fn is_modifier(evt: &KeyEvent) -> bool {
 }
 
 pub fn check_software_update() {
-    if is_custom_client() {
+    // Easy Cloud Remote: no update checks against third-party servers.
+    if true || is_custom_client() {
         return;
     }
     let opt = LocalConfig::get_option(keys::OPTION_ENABLE_CHECK_UPDATE);
@@ -2159,8 +2160,8 @@ async fn key_exchange(conn: &mut Stream, key: &str, log_on_success: bool) -> Res
     let Some(rs_pk) = rs_pk else {
         bail!("Handshake failed: invalid public key from rendezvous server");
     };
-    match timeout(READ_TIMEOUT, conn.next()).await? {
-        Some(Ok(bytes)) => {
+    match timeout(Duration::from_millis(1000), conn.next()).await {
+        Ok(Some(Ok(bytes))) => {
             if let Ok(msg_in) = RendezvousMessage::parse_from_bytes(&bytes) {
                 match msg_in.union {
                     Some(rendezvous_message::Union::KeyExchange(ex)) => {
