@@ -29,6 +29,7 @@ import 'package:window_manager/window_manager.dart';
 import 'package:window_size/window_size.dart' as window_size;
 
 import '../consts.dart';
+import 'common/widgets/login.dart';
 import 'common/widgets/overlay.dart';
 import 'mobile/pages/file_manager_page.dart';
 import 'mobile/pages/remote_page.dart';
@@ -2532,6 +2533,13 @@ connectMainDesktop(String id,
     String? password,
     String? connToken,
     bool? isSharedPassword}) async {
+  // Enforce Easy Cloud ERP Subscription Gatekeeper (One-Side Controller Login)
+  if (!gFFI.userModel.isLogin) {
+    final loggedIn = await loginDialog();
+    if (loggedIn != true || !gFFI.userModel.isLogin) {
+      return;
+    }
+  }
   if (isFileTransfer) {
     await rustDeskWinManager.newFileTransfer(id,
         password: password,
@@ -2627,6 +2635,13 @@ connect(BuildContext context, String id,
       });
     }
   } else {
+    // Enforce Easy Cloud ERP Subscription Gatekeeper on Mobile/Web
+    if (!gFFI.userModel.isLogin) {
+      final loggedIn = await loginDialog();
+      if (loggedIn != true || !gFFI.userModel.isLogin) {
+        return;
+      }
+    }
     if (isFileTransfer) {
       if (isWeb) {
         Navigator.push(

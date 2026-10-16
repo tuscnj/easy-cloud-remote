@@ -50,6 +50,14 @@ class UserModel {
     });
   }
 
+  static Future<String> _resolveApiUrl([String? custom]) async {
+    var url = custom ?? await bind.mainGetApiServer();
+    if (url.trim().isEmpty || url.contains(':21114')) {
+      return 'https://easyclouderp.com';
+    }
+    return url.trim();
+  }
+
   void refreshCurrentUser() async {
     if (bind.isDisableAccount()) return;
     networkError.value = '';
@@ -60,7 +68,7 @@ class UserModel {
       return;
     }
     _updateLocalUserInfo();
-    final url = await bind.mainGetApiServer();
+    final url = await _resolveApiUrl();
     final body = {
       'id': await bind.mainGetMyId(),
       'uuid': await bind.mainGetUuid()
@@ -82,8 +90,8 @@ class UserModel {
       }
       refreshingUser = false;
       final status = response.statusCode;
-      if (status == 401 || status == 400) {
-        reset(resetOther: status == 401);
+      if (status == 401 || status == 400 || status == 403) {
+        reset(resetOther: true);
         return;
       }
       final data = json.decode(decode_http_response(response));
@@ -170,7 +178,7 @@ class UserModel {
   Future<void> logOut({String? apiServer}) async {
     final tag = gFFI.dialogManager.showLoading(translate('Waiting'));
     try {
-      final url = apiServer ?? await bind.mainGetApiServer();
+      final url = await _resolveApiUrl(apiServer);
       final authHeaders = getHttpHeaders();
       authHeaders['Content-Type'] = "application/json";
       await http
@@ -191,11 +199,9 @@ class UserModel {
 
   /// throw [RequestException]
   Future<LoginResponse> login(LoginRequest loginRequest) async {
-    var url = await bind.mainGetApiServer();
-    if (url.trim().isEmpty) {
-      url = 'https://easyclouderp.com';
-    }
+    final url = await _resolveApiUrl();
     final resp = await http.post(Uri.parse('$url/api/login'),
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode(loginRequest.toJson()));
 
     final Map<String, dynamic> body;
@@ -241,10 +247,7 @@ class UserModel {
   /// data. Returns an empty list when no API server is configured or a
   /// successful response contains no third-party login options.
   static Future<List<dynamic>> queryOidcLoginOptions() async {
-    var url = await bind.mainGetApiServer();
-    if (url.trim().isEmpty) {
-      url = 'https://easyclouderp.com';
-    }
+    final url = await _resolveApiUrl();
     final http.Response resp;
     try {
       resp = await http.get(Uri.parse('$url/api/login-options'));

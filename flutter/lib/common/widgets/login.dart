@@ -40,6 +40,11 @@ class _OidcProviderBranding {
 
 _OidcProviderBranding _oidcProviderBranding(String op) {
   switch (op.toLowerCase()) {
+    case 'easycloud':
+      return _OidcProviderBranding(
+        label: 'Easy Cloud ERP',
+        iconKey: 'easycloud',
+      );
     case 'azure':
       return _OidcProviderBranding(
         label: 'Microsoft',
@@ -70,11 +75,21 @@ class _IconOP extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (op.toLowerCase() == 'easycloud') {
+      return Container(
+        margin: margin,
+        child: const Icon(
+          Icons.cloud_done_rounded,
+          color: Colors.white,
+          size: 20,
+        ),
+      );
+    }
     final svgFile =
         kOpSvgList.contains(op.toLowerCase()) ? op.toLowerCase() : 'default';
     return Container(
       margin: margin,
-      child: icon == null
+      child: (icon == null || icon!.isEmpty)
           ? SvgPicture.asset(
               'assets/auth-$svgFile.svg',
               width: 20,
@@ -110,7 +125,9 @@ class ButtonOP extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final branding = _oidcProviderBranding(op);
-    final buttonLabel = translate("Continue with {${branding.label}}");
+    final buttonLabel = op.toLowerCase() == 'easycloud'
+        ? '1-Click Web Login (ERP)'
+        : translate("Continue with {${branding.label}}");
     return Row(children: [
       Container(
         height: height,
@@ -902,12 +919,15 @@ Future<bool?> _openLoginDialog() async {
               ],
             );
           }
-          final googleOps = loginOptions
-              .where((e) => e['name'].toString().toLowerCase() == 'google')
+          final fetchedOps = loginOptions
+              .where((e) => e['name'].toString().toLowerCase() == 'easycloud')
               .map((e) => ConfigOP(op: e['name'], icon: e['icon']))
               .toList();
+          final easyCloudOps = fetchedOps.isNotEmpty
+              ? fetchedOps
+              : [ConfigOP(op: 'easycloud', icon: '')];
           return Offstage(
-            offstage: googleOps.isEmpty,
+            offstage: false,
             child: Column(
               children: [
                 const SizedBox(
@@ -922,7 +942,7 @@ Future<bool?> _openLoginDialog() async {
                   height: 8.0,
                 ),
                 LoginWidgetOP(
-                  ops: googleOps,
+                  ops: easyCloudOps,
                   curOP: curOP,
                   startAuth: oidcAuth.start,
                   cancelAuth: oidcAuth.cancelCurrent,
