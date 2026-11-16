@@ -771,6 +771,9 @@ class InputModel {
       toReleaseRawKeys.updateKeyDown(key, e);
     }
     if (e is RawKeyUpEvent) {
+      if (!e.isShiftPressed) shift = false;
+      if (!e.isControlPressed) ctrl = false;
+      if (!e.isAltPressed) alt = false;
       if (key == LogicalKeyboardKey.altLeft ||
           key == LogicalKeyboardKey.altRight) {
         alt = false;
@@ -1112,6 +1115,10 @@ class InputModel {
 
   /// Modify the given modifier map [evt] based on current modifier key status.
   Map<String, dynamic> modify(Map<String, dynamic> evt) {
+    // Prevent stale soft-keyboard shift on mobile from contaminating mouse/touch clicks
+    if (isMobile && !HardwareKeyboard.instance.isShiftPressed) {
+      shift = false;
+    }
     if (ctrl) evt['ctrl'] = 'true';
     if (shift) evt['shift'] = 'true';
     if (alt) evt['alt'] = 'true';

@@ -1611,9 +1611,15 @@ fn reset_input() {
     }
 }
 
-#[cfg(target_os = "macos")]
+#[inline]
 pub fn reset_input_ondisconn() {
+    #[cfg(target_os = "macos")]
     QUEUE.exec_async(reset_input);
+    #[cfg(not(target_os = "macos"))]
+    {
+        release_device_modifiers();
+        fix_key_down_timeout(true);
+    }
 }
 
 fn sim_rdev_rawkey_position(code: KeyCode, keydown: bool) {

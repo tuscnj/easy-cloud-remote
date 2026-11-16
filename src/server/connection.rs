@@ -1245,7 +1245,7 @@ impl Connection {
             rdev::set_mouse_extra_info(enigo::ENIGO_INPUT_EXTRA_VALUE);
             rdev::set_keyboard_extra_info(enigo::ENIGO_INPUT_EXTRA_VALUE);
         }
-        #[cfg(target_os = "macos")]
+        // Reset and clear any stuck modifiers upon connection
         reset_input_ondisconn();
         loop {
             match receiver.recv_timeout(std::time::Duration::from_millis(500)) {
@@ -1310,6 +1310,8 @@ impl Connection {
                 }
             }
         }
+        // Release all modifiers and stuck keys when client disconnects
+        reset_input_ondisconn();
         #[cfg(target_os = "linux")]
         clear_remapped_keycode();
         log::debug!("Input thread exited");
